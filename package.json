@@ -12,7 +12,7 @@
     "core-js": "^3.4.4",
     "v-datatable-light": "^0.8.0",
     "vue": "^2.6.10",
-    "vuetify": "^2.1.0"
+    "vuetify": "^2.2.17"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",
@@ -38,12 +38,13 @@
     ],
     "rules": {
       "no-console": "off",
-      "no-unused-vars": ["error",
+      "no-unused-vars": [
+        "error",
         {
-            "args": "after-used",
-            "argsIgnorePattern": "^_"
-        }]
-      
+          "args": "after-used",
+          "argsIgnorePattern": "^_"
+        }
+      ]
     },
     "parserOptions": {
       "parser": "babel-eslint"
