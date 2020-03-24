@@ -1,463 +1,86 @@
-
 <template>
   <div id="bodi" >
     <div id="container">
-        <h3 style="margin: 20px">Entry Stage</h3>
-        <form id="entryStage" @submit.prevent >
-          
-          <div id="fieldset1">
+      <h3 style="margin: 20px">Entry Stage</h3>
 
-            <div id="FSchild1">
-              <div class="field">
-                <label for="financialyear">Financial year</label>
-                <ejs-combobox :dataSource='financialYearSrc'   mode='Delimiter'  id="financialyear" allowCustom="true"
-                      :hideSelectedItem='false'  :allowMultiSelection='true'  :allowFiltering='allowFiltering' 
-                      :fields='remoteFields' placeholder='select an item' popupWidth="250px" popupHeight="200px">
-                </ejs-combobox>
-                <span class="bar"></span>  
-              </div>
-              <div class="field">
-                <label for="inputDateOfEntry">Date of entry</label>
-                <input type="date" id="inputDateOfEntry"  name="dateOfEntry"  placeholder="DD/MM/YY" autocomplete="off" onkeydown="return (event.keyCode!=13);"> 
-                <span class="bar"></span>
-              </div>                
-            </div>
+      <form id="entryStage" @submit.prevent >  
 
-            <div id="FSchild2">
-              <div class="field">
-                <label for="inputVendorField">Vendor name</label>
-                <ejs-combobox :dataSource='vendorSrc'  allowCustomValue='allowCustomValue' id="inputvendor"  mode='Delimiter'  
-                    :hideSelectedItem='false'  :allowMultiSelection='true' onkeydown="return (event.keyCode!=13);"
-                    :fields='remoteFields' placeholder='select an item'
-                    popupWidth="250px" popupHeight="200px">
-                </ejs-combobox>
-                <span class="bar"></span>
-              </div>
-              <div class="field">
-                <label for="inputInvoiceNo">Invoice n°</label>
-                <input  type="number"  id="inputInvoiceNo" name="invoiceN°" onkeydown="return (event.keyCode!=13);" v-on:keyup.enter="getInvoiceAndFill()" >
-                <span class="bar"></span>
-              </div>
-              <div class="field">
-                <label for="inputDateOfInvoice"> Date of invoice</label>
-                <input  type="text"  id="inputDateOfInvoice" name="dateOfInvoice" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-            </div>
+        <div id="fieldset1">
+          <div class='field' v-for="field in invoiceFields" :key="field.id">
+            <combobox-field v-if="field.type === 'combobox'"
+                :id='field.id' :data='field.data' 
+                :fields='field.fields' :text='field.text'>
+            </combobox-field>
+            <action-field v-else-if="field.id === 'inputInvoiceNo'"
+                :id='field.id' :type='field.type' :text='field.text' :action='getInvoiceAndFill'>
+            </action-field>
+            <input-field v-else
+                :id='field.id' :type='field.type' :text='field.text'>
+            </input-field>
+          </div>         
+        </div>
 
-            <div id="FSchild3">
-              <div class="field">
-                <label for="inputAssetType">Asset type</label>
-                <ejs-combobox :dataSource='assetTypeSrc'   allowCustomValue='allowCustomValue' id="inputAssetType" mode='Delimiter'  
-                    :hideSelectedItem='false'  :allowMultiSelection='true' onkeydown="return (event.keyCode!=13);"
-                    :fields='remoteFields' placeholder='select an item'
-                    popupWidth="250px" popupHeight="200px">
-                </ejs-combobox>
-              </div>
-              <div class="field">
-                <label for="inputFund">Fund</label>
-                <ejs-combobox :dataSource='invoiceSrc' allowCustomValue='allowCustomValue' id="inputFund" mode='Delimiter'  
-                    :hideSelectedItem='false'  :allowMultiSelection='true' onkeydown="return (event.keyCode!=13);"
-                    :fields='remoteFieldsInvoiceFund' placeholder='select an item'
-                    popupWidth="250px" popupHeight="200px">
-                </ejs-combobox>
-              </div>
-            </div>
-          
+        <line-div></line-div>
+        <line-div></line-div>
+        <line-div></line-div>
+
+        <div id="fieldsetMiddle">
+          <div class='field' v-for="field in entryFields" :key="field.id">
+              <combobox-field v-if="field.type === 'combobox'"
+                  :id='field.id' :data='field.data' 
+                  :fields='field.fields' :text='field.text'>
+              </combobox-field>
+              <input-field v-else
+                  v-bind:id='field.id' v-bind:type='field.type' v-bind:text='field.text'>
+              </input-field>
           </div>
+        </div>
           
-          <div style="width: 100%; height:10px;  border-bottom: 1px solid; opacity: 0.3"></div>
-          <div style="width: 100%; height:10px;  border-bottom: 1px solid; opacity: 0.3"></div>
-          <div style="width: 100%; height:10px;  border-bottom: 1px solid; opacity: 0.3"></div>
+        <form @submit.prevent>
+          <div id="fieldset2" >
+            <div class='field' v-for="field of tableFields" :key="field.id">
+              <combobox-field v-if="field.type === 'combobox'"
+                  :id='field.id' :data='field.data' 
+                  :fields='field.fields' :text='field.text'>
+              </combobox-field>
+              <input-field v-else
+                  :id='field.id' :type='field.type' :text='field.text' :clas='field.clas'>
+              </input-field>
+            </div>            
+          </div>        
+        </form>
           
-          <div id="fieldsetMiddle">
-            <div class="field" id="fieldInputSN°">
-              <label for="inputS.N°">S.N°</label>
-              <input type="number" id="inputS.N°"  name="S.N°" autocomplete="off" onkeydown="return (event.keyCode!=13);">  
-              <span class="bar"></span>
-            </div>
-            
-            <div class="field" id="fieldInputPO">
-              <label for="inputPO">PO Number/ Requisition below 25000/-</label>
-              <input type="text" id="inputPO"  name="PO"  autocomplete="off" onkeydown="return (event.keyCode!=13);"> 
-              <span class="bar"></span>
-            </div>
-            
-            <div class="field" id=fieldPurchasefor>
-              <label for="purchasefor">Purchase for</label>
-              <ejs-combobox :dataSource='departmentSrc' id="purchasefor" mode='Delimiter'  onkeydown="return (event.keyCode!=13);"
-                  :allowMultiSelection='true'     v-model="pf"  @submit.prevent 
-                  :fields='remoteFields' placeholder='select an item' 
-                  popupWidth="250px" popupHeight="200px">
-              </ejs-combobox>
-            </div>
+        <div id="addItem" @click="addItem()" style="cursor: pointer; margin: 15px">Add item</div>
 
-          </div>
-          
-          <form @submit.prevent>
-            <div id="fieldset2" >
-              <div class="field">
-                <label for="mainCat">Stock Register/ Main Category</label>
-                <ejs-combobox :dataSource='mainCategorySrc' mode='Delimiter' id="mainCat"  onkeydown="return (event.keyCode!=13);"
-                    :hideSelectedItem='false'  :allowMultiSelection='true'   v-model="mc"
-                    :fields='remoteFields' placeholder='select an item' @submit.prevent
-                    popupWidth="250px" popupHeight="200px">
-                </ejs-combobox>
-                <p id="StockRegMainCatp" style="display: none; padding: 5px ">{{mc}}</p>
-              </div>
-              
-              <div class="field">
-                <label for="subCat">Stock Register/ sub Category</label>
-                <ejs-combobox :dataSource='subCategorySrc' mode='Delimiter'  id="subCat" 
-                    :hideSelectedItem='false'  :allowMultiSelection='true'  @submit.prevent
-                    :fields='remoteFields' placeholder='select an item' v-model="sc" onkeydown="return (event.keyCode!=13);"
-                    popupWidth="250px" popupHeight="200px">
-                </ejs-combobox>
-                <p  id="StockRegSubCp" style="display: none; padding: 5px ">{{sc}}</p>
-              </div>
-              
-              <div class="field">
-                <label for="nameInvoice">Item name as per Invoice</label>
-                <input  type="text" class="paddedinput"  id="nameInvoice" name="itemNameAsPerInvoice" autocomplete="off"  onkeydown="return (event.keyCode!=13);"> 
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="nameCoding">Item name for coding</label>
-                <ejs-combobox :dataSource='itemsSrc' mode='Delimiter'  id="nameCoding" onkeydown="return (event.keyCode!=13);"
-                    :hideSelectedItem='false'  :allowMultiSelection='true'  @submit.prevent
-                    :fields='remoteFieldsItemNameCoding' placeholder='select an item'  v-model="ic"
-                    popupWidth="250px" popupHeight="200px">
-                </ejs-combobox>
-                <p  id="ItemNameAsForCodingp" style="display: none; padding: 5px ">{{ic}}</p>
-              </div>
 
-              <div class="field">
-                <label for="assetCode">Asset Code</label>
-                <input type="text" id="assetCode" class="paddedinput"  name="assetCode" autocomplete="off"  onkeydown="return (event.keyCode!=13);">  
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="invoiceQty">Item Quantity (Recd. Via Invoice)</label>
-                <input type="number" id="invoiceQty" class="paddedinput"  name="itemQ(RECD.viaInvoice)"  autocomplete="off" onkeydown="return (event.keyCode!=13);"> 
-                <span class="bar"></span>
-              </div>
+        <div id="tableContainer">
 
-              <div class="field">
-                <label for="prevQty">Item Quantity (Previous available to Store)</label>
-                <input  type="number" id="prevQty" class="paddedinput"  name="itemQ(Prev.AvailableStore)"  autocomplete="off" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="totalQty">Total Item Quantity</label>
-                <input  type="number"  id="totalQty" class="paddedinput"  name="totaltemQ" onkeydown="return (event.keyCode!=13);" >
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="prevSrlNo">Previous available Sr.No</label>
-                <input  type="number"  id="prevSrlNo" class="paddedinput"  name="prevAvailableSr.No" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="lastSrlAssigned">Item Last Sr. No. (As per coding)</label>
-                <input  type="number"  id="lastSrlAssigned" class="paddedinput"  name="itemItemLastSr.N°" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="newNumber">Item New Number</label>
-                <input  type="number"  id="newNumber" class="paddedinput"  name="itemNewNumber" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-
-              <div class="field">
-                <label for="itemMake">Item Make</label>  
-                <input  type="text"  id="itemMake" class="paddedinput"  name="itemMake" autocomplete="off" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="itemSrlNo">Item S.N°</label>
-                <input type="number" id="itemSrlNo" class="paddedinput"   name="itemS.N°" autocomplete="off" onkeydown="return (event.keyCode!=13);">  
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="basicRate">Basic Rate</label>
-                <input type="number" id="basicRate" class="paddedinput"   name="basicRate"  autocomplete="off" onkeydown="return (event.keyCode!=13);"> 
-                <span class="bar"></span>
-              </div>
-
-              <div class="field">
-                <label for="discount">Discount (%)</label>
-                <input  type="number" id="discount" class="paddedinput"  name="discount(%)"  autocomplete="off" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-              
-              <div class="field">
-                <label for="tax">Tax (%)</label>
-                <input  type="number"  id="tax" class="paddedinput"  name="tax(%)" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-
-              <div class="field">
-                <label for="amount">Amount</label>
-                <input  type="number"  id="amount" class="paddedinput"  name="amount" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-               
-              <div class="field">
-                <label for="stockRegPage">Stock Register Page No.</label>
-                <input  type="number"  id="stockRegPage" class="paddedinput"  name="stockRegPageN°" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
-              </div>
-
-            </div>
-          
-          </form>
-          
-          <div id="addItem" @click="addItem()" style="cursor: pointer; margin: 15px">Add item</div>
-          <div id="tableContainer">
-            
-            <DataTable class="Datatable" :header-fields="headerFields" :data="mainCategoryCol || []" not-found-msg="" >   
-              <div slot="F1New" slot-scope="props">
-                <ejs-combobox 
-                    :dataSource='mainCategorySrc' 
-                    mode='Delimiter'  id="subCat" 
-                    :value="props.rowData.F1"
-                    @keyup="change($event, props.rowData.id, mainCategoryCol);"
-                    class="form-control">
-                </ejs-combobox>
-        <!--        <textarea
-                    type="text"
-                    :value="props.rowData.F1"
-                    @keyup="change($event, props.rowData.id, mainCategoryCol);"
-                    class="form-control">
-                </textarea> -->
-              </div>
-            </Datatable>
-            
-            <DataTable class="Datatable" :header-fields="headerFields" :data="subCategoryCol || []" not-found-msg=" " >  
-              <div slot="F1New" slot-scope="props">
-                <textarea id= "textarea1"
-                    type="text"
-                    :value="props.rowData.F1"
-                    @keyup="change($event, props.rowData.id, subCategoryCol);"
-                    class="form-control">
-                </textarea>
-              </div>
-              
-            </Datatable>
-            
-            <DataTable class="Datatable" :header-fields="headerFields" :data="itemNameCol || []" not-found-msg=" " > 
+          <DataTable v-for='field of tableFields' :key="field.id"
+              class="Datatable" :header-fields="headerFields" 
+              :data="field.column || []" not-found-msg="" >   
               <div slot="F1New" slot-scope="props">
                 <textarea
                     type="text"
                     :value="props.rowData.F1"
-                    @keyup="change($event, props.rowData.F1, itemNameCol);"
+                    @keyup="change($event, props.rowData.ID, field.column);"
                     class="form-control">
-                </textarea>
+                </textarea> 
               </div>
-              
-            </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="nameForCodingCol || [] " not-found-msg=""  > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.id, nameForCodingCol);">
-                    </textarea>
-                  </div>          
-                </Datatable>
+          </Datatable>
 
-                <DataTable class="Datatable" :header-fields="headerFields" :data="assetCodeCol || []" not-found-msg=""  >   
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, assetCodeCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>        
-                </Datatable>
-
-                <DataTable class="Datatable" :header-fields="headerFields" :data="itemQuantityCol || []" not-found-msg=""  > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, itemQuantityCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>        
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="itemQuantityPreviousCol || []" not-found-msg=""  >   
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, itemQuantityPreviousCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>      
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="totalItemQuantityCol || []" not-found-msg=""  > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, totalItemQuantityCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>      
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="previousAvailableSerialNoCol || []" not-found-msg=""  > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, previousAvailableSerialNoCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div> 
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="itemLastSerialNoCol || []" not-found-msg="">
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, itemLastSerialNoCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="itemNewNumberCol || []" not-found-msg="" >
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, itemNewNumberCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="itemMakeCol || []" not-found-msg="" > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, itemMakeCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="itemSerialNoCol || []" not-found-msg="" > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, itemSerialNoCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="basicRateCol || []" not-found-msg=""  > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, basicRateCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div> 
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="discountCol || []" not-found-msg="">
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.F1, discountCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="taxCol || []" not-found-msg="" >
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.id, taxCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="amountCol || []" not-found-msg="" > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.id, amountCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                <DataTable class="Datatable" :header-fields="headerFields" :data="stockRegisterPageNoCol || []" not-found-msg="" > 
-                  <div slot="F1New" slot-scope="props">
-                    <textarea
-                      type="text"
-                      :value="props.rowData.F1"
-                      @keyup="change($event, props.rowData.id, stockRegisterPageNoCol);"
-                      class="form-control"
-                    ></textarea>
-                  </div>
-                </Datatable>
-                
         </div>
-                
-    
-         <div class="field" id="fieldInputTA">
-                <label for="inputTotalAmount">Total Amount</label>
-                <input  type="number"  id="inputTotalAmount" name="totalAmount" onkeydown="return (event.keyCode!=13);">
-                <span class="bar"></span>
+        
+          
+        <div id="divConfirm">
+          <label>Confirm Entry</label>
+          <button id="yes" value="sendEntry" @click="sendEntry()" onkeydown="return (event.keyCode!=13);" >Yes</button>
+          <button id="no" value="cancel" onClick="window.location.reload()" onkeydown="return (event.keyCode!=13);">No</button>
         </div>
           
-         <div id="divConfirm">
-                <label>Confirm Entry</label>
-                <button id="yes"  value="sendEntry" @click="sendEntry()" onkeydown="return (event.keyCode!=13);" >Yes</button>
-                <button id="no"  value="cancel" onClick="window.location.reload()" onkeydown="return (event.keyCode!=13);">No</button>
-        </div>
-          
-        </form>
+      </form>
     </div>
   </div>
-
 </template>
-
- <!--
-
-<template>
-
-  <div>
-      <select v-model="financialYear">
-        <option v-for="year in financialYear" 
-                v-bind:value="year.name"
-                v-bind:key="year.id">
-            {{ year.name }}
-        </option>
-      </select>
-      <span>Selected: {{ year.name }}</span>
-
-      <div id="vue-root">
-          <datatable :columns="columns" :data="rows"></datatable>
-      </div>
-  </div>
-</template>
-
--->
 
 
 <script>
@@ -475,89 +98,151 @@ import{ DataManager, WebApiAdaptor,} from '@syncfusion/ej2-data' ;
 
 import { DataTable } from 'v-datatable-light';
 
-//=======================================================================================
-//Table
+//=============================Data=================================
 
-const comboboxKeys = [
-      "mainCat", "subCat", "nameCoding"
-];
+var fetchData = function(namePath) {
+    return new DataManager({
+        url: 'http://localhost:8080/'.concat(namePath, '/all'),
+        adaptor: new WebApiAdaptor,
+        crossDomain: true
+    });
+}
 
-const elementKeys = [
-      "nameInvoice",
-      "assetCode", "invoiceQty", "prevQty", "totalQty", "prevSrlNo",
-      "lastSrlAssigned", "newNumber", "itemMake", "itemSrlNo",
-      "basicRate", "discount", "tax", "amount", "stockRegPage",
-      "itemId" //hidden
-];
-
-const columns = comboboxKeys.concat(elementKeys);
-
-var generateTable = function() {
-    let tbl = new Map();
-
-    for (var key of columns) {
-        tbl.set(key, new Array());
+//=============================Fields=================================\\
+class Field {
+    constructor(id, type, text, clas, data, fields) {
+        this.id = id;
+        this.type = type;
+        this.text = text;
+        this.clas = clas;
+        this.data = data;
+        this.fields = fields;
+        this.column = [];
     }
-    console.log({"Table": tbl});
-    return tbl;
+}
+
+const simpleField = {value:'id', text:'name'};
+
+const invoiceFields = [
+    new Field("financialyear", "combobox", "Financial year", "", fetchData("financialyear"), simpleField),
+    new Field("inputDateOfEntry", "date", "Date of entry"),
+    new Field("inputvendor", "combobox", "Vendor name", "", fetchData("vendor"), simpleField),
+    new Field("inputAssetType", "combobox", "Asset type", "", fetchData("assettype"), simpleField),
+    new Field("inputFund", "combobox", "Fund", "", fetchData("invoice"), simpleField),
+    new Field("inputInvoiceNo", "number", "Invoice n°"),
+    new Field("inputDateOfInvoice", "date", "Date of invoice"),
+];
+
+const entryFields = [
+    new Field("fieldInputSN", "number", "S.N°"),
+    new Field("fieldInputPO", "text", "PO Number/ Requisition below 25000/-"),
+    new Field("fieldPurchasefor", "combobox", "Purchase for", "", fetchData("department"), simpleField),
+    new Field("inputTotalAmount", "number", "Total Amount")
+];
+
+const itemNameField = {value: 'id' ,text:'finalCode'};
+
+const tableFields = [
+    new Field("mainCat", "combobox", "Stock Register/ Main Category", "", fetchData("maincategory"), simpleField),
+    new Field("subCat", "combobox", "Stock Register/ sub Category", "", fetchData("subcategory"), simpleField),
+    new Field("nameInvoice", "text", "Item name as per Invoice", "paddedinput"),
+    new Field("nameCoding", "combobox", "Item name for coding", "", fetchData("item"), itemNameField),
+    new Field("assetCode", "text", "Asset Code", "paddedinput"),
+    new Field("invoiceQty", "number", "Item Quantity (Recd. Via Invoice)", "paddedinput"),
+    new Field("prevQty", "number", "Item Quantity (Previous available to Store)", "paddedinput"),
+    new Field("totalQty", "number", "Total Item Quantity", "paddedinput"),
+    new Field("prevSrlNo", "number", "Previous available Sr.No", "paddedinput"),
+    new Field("lastSrlAssigned", "number", "Item Last Sr. No. (As per coding)", "paddedinput"),
+    new Field("newNumber", "number", "Item New Number", "paddedinput"),
+    new Field("itemMake", "text", "Item Make", "paddedinput"),
+    new Field("itemSrlNo", "number", "Item S.N°", "paddedinput"),
+    new Field("basicRate", "number", "Basic Rate", "paddedinput"),
+    new Field("discount", "number", "Discount", "paddedinput"),
+    new Field("tax", "number", "Tax (%)", "paddedinput"),
+    new Field("amount", "number", "Amount", "paddedinput"),
+    new Field("stockRegPage", "number", "Stock Register Page No.", "paddedinput")
+];
+
+var mapTable = function() {
+    let map = new Map();
+    for (var field of tableFields) {
+        map.set(field.id, field.column);
+    }
+    return map;
 };
 
-var table = generateTable();
+const tableMap = mapTable();
 
-//========================================================================================
+//=============================Components=================================\\
 
-class ApiURL {
-    constructor(type) {
-        this.type = type;
-    }
-    path() {
-      return 'http://localhost:8080/'.concat(this.type, '/all');
-    }
-}
+Vue.component('line-div', {
+  template: '\
+      <div style="width: 100%; height:10px;  border-bottom: 1px solid; opacity: 0.3"></div>'
+});
 
-//Fetch all dropdown data
-var fetchAllData = function() {
+Vue.component('input-field', {
+    props: ['id', 'type', 'text', 'clas'],
+    template: "\
+        <div class='field'>\
+            <label v-bind:for='id'>{{text}}</label>\
+            <input v-bind:type='type' v-bind:id='id'\
+                v-bind:class='clas' v-bind:name='id'\
+                autocomplete='off'\
+                onkeydown='return (event.keyCode!=13);'>\
+            <span class=\"bar\"></span>\
+        </div>"
+});
 
-    const api = [
-        new ApiURL('financialyear'),
-        new ApiURL('vendor'),
-        new ApiURL('assettype'),
-        new ApiURL('maincategory'),
-        new ApiURL('subcategory'),
-        new ApiURL('department'),
-        new ApiURL('item')
-    ]
-    console.log({"API directory": api});
+Vue.component('action-field', {
+    props: ['id', 'type', 'text', 'clas', 'action'],
+    template: "\
+        <div class='field'>\
+            <label v-bind:for='id'>{{text}}</label>\
+            <input v-bind:type='type' v-bind:id='id'\
+                :class='clas' v-bind:name='id'\
+                autocomplete='off' v-on:keyup.enter='action'\
+                onkeydown='return (event.keyCode!=13);'>\
+            <span class=\"bar\"></span>\
+        </div>"
+});
 
-    let fetchedData = new Map();
+Vue.component('combobox-field', {
+    props: ['id', 'data', 'fields', 'text'],
+    template: "\
+        <div>\
+            <label v-bind:for='id'>{{text}}</label>\
+            <ejs-combobox v-bind:dataSource='data'\
+                mode='Delimiter' v-bind:id='id' allowCustom=\"false\"\
+                :hideSelectedItem='false' :allowFiltering='true'\
+                v-bind:fields='fields' placeholder=\"Select an item\"\
+                popupWidth=\"250px\" popupHeight=\"200px\">\
+            </ejs-combobox>\
+            <span class='bar'></span>\
+        </div>"
+});
 
-    for (var dir of api) {
-      let dataSrc = new DataManager({
-            url: dir.path(),
-            adaptor: new WebApiAdaptor,
-            crossDomain: true
-        });
+/*
+<div class="field">
+  <label for="mainCat">Stock Register/ Main Category</label>
+  <ejs-combobox  id="mainCat"  onkeydown="return (event.keyCode!=13);"
+      :hideSelectedItem='false'  :allowMultiSelection='true'   v-model="mc"
+      :fields='remoteFields' placeholder='select an item' @submit.prevent
+      popupWidth="250px" popupHeight="200px">
+  </ejs-combobox>
+  <p id="StockRegMainCatp" style="display: none; padding: 5px ">{{mc}}</p>
+</div>
+*/
 
-        fetchedData.set(dir.type, dataSrc);
-    }
-
-    console.log({"Fetched data": fetchedData});
-    return fetchedData;
-}
-
-const allFetchedData = fetchAllData();
-
-//==============================================================================
+//===================================================================================
 
 var getInvoiceFromServer = function(invoiceNo, callback) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
-     // let response = JSON.parse(xhttp.responseText);
+ 
       if (this.readyState == 4 && this.status == 200) {
-          console.log({"Fetched invoice: ": JSON.parse(xhttp.responseText)});
+          console.log({"Fetched invoice": JSON.parse(xhttp.responseText)});
           callback(JSON.parse(xhttp.responseText));
       } else if (this.status == 404){
-          console.log("Error");
           alert("Invoice n° " + invoiceNo + " not found.")
       }
     };
@@ -570,37 +255,35 @@ var getInvoiceFromServer = function(invoiceNo, callback) {
 
 var sendItems = [];
 
+var slotIndex = 0;
+
 class Item {
     constructor(itemId, args) {
         this.itemId = itemId; 
         this.args = args;
-        this.newNumber = args.get("newNumber");
-        this.basicRate = args.get("basicRate");
-        this.discount = args.get("discount");
-        this.tax = args.get("tax");
-        this.amount = args.get("amount");
     }   
 
     pushToTable() {
-        for (var key of columns) {
-            table.get(key).push({F1: this.args.get(key)});
+        for (var field of tableFields) {
+            field.column.push({F1: this.args.get(field.id), ID: slotIndex});
+            slotIndex++;
         }
 
         let item = {
           "item": {
               "id": this.itemId
           },
-          "itemNewSerialNumber": this.newNumber,
-          "basicRate": this.basicRate,
-          "discount": this.discount,
-          "tax": this.tax,
-          "amount": this.amount
+          "itemNewSerialNumber": this.args.get("newNumber"),
+          "basicRate": this.args.get("basicRate"),
+          "discount": this.args.get("discount"),
+          "tax": this.args.get("tax"),
+          "amount": this.args.get("amount")
         }
         sendItems.push(item);
     }
 }
 
-//========
+//=====================================================0
 
 var isBlank = function(field) {
     if (field == null || field == undefined
@@ -617,7 +300,7 @@ window.onload = function() {
 }   
 
 export default Vue.extend({
-  name: 'form1', 
+  name: 'formEntry', 
   components: {
     DataTable
   },
@@ -625,35 +308,9 @@ export default Vue.extend({
   data: function() {
     return {
 
-      financialYearSrc: allFetchedData.get("financialyear"),
-      vendorSrc: allFetchedData.get("vendor"),
-      invoiceSrc: allFetchedData.get("invoice"),
-      assetTypeSrc: allFetchedData.get("assettype"),
-      mainCategorySrc: allFetchedData.get("maincategory"),
-      subCategorySrc: allFetchedData.get("subcategory"),
-      departmentSrc: allFetchedData.get("department"),
-      itemsSrc: allFetchedData.get("item"),
-
-      remoteFields: {value: 'id', text:'name'},
-      remoteFieldsInvoiceN: {value: 'id' ,text:'number'  },
-      remoteFieldsInvoiceDateEntry: {value: 'id' ,text:'entryDate' },
-      remoteFieldsInvoiceDate: {value: 'id' ,text:'date' },
-      remoteFieldsInvoiceFinancialYear: {value: 'financialYear.id' ,text:'financialYear.name' },
-      remoteFieldsInvoiceVendor: {value: 'vendor.id' ,text:'vendor.name' },
-      remoteFieldsInvoiceAssetType: {value: 'assetType.id' ,text:'assetType.name' },
-      remoteFieldsInvoiceFund: {value: 'id' ,text:'fund'  },
-      remoteFieldsInvoiceTotalAmount: {value: 'id' ,text:'totalAmount'},
-      remoteFieldsItemNameCoding: {value: 'id' ,text:'finalCode'},
-           
-      keySettings: {
-        saveRequest: "",
-      },
-      
-      //Vue properties default
-      pf : null,
-      mc : null,
-      sc : null,
-      ic : null,
+      invoiceFields: invoiceFields,
+      entryFields: entryFields,
+      tableFields: tableFields,
      
       headerFields: [
         {
@@ -663,42 +320,20 @@ export default Vue.extend({
         },
       ],
     
-      mainCategoryCol: table.get("mainCat"),  
-      subCategoryCol: table.get("subCat"),  
-      itemNameCol: table.get("nameInvoice"),  
-      nameForCodingCol: table.get("nameCoding"),  
-      assetCodeCol: table.get("assetCode"),
-      itemQuantityCol: table.get("invoiceQty"),  
-      itemQuantityPreviousCol: table.get("prevQty"),  
-      totalItemQuantityCol: table.get("totalQty"),  
-      previousAvailableSerialNoCol: table.get("prevSrlNo"),  
-      itemLastSerialNoCol: table.get("lastSrlAssigned"),  
-      itemNewNumberCol: table.get("newNumber"),
-      itemMakeCol: table.get("itemMake"),  
-      itemSerialNoCol: table.get("itemSrlNo"),  
-      basicRateCol: table.get("basicRate"),  
-      discountCol: table.get("discount"),  
-      taxCol: table.get("tax"),  
-      amountCol: table.get("amount"),
-      stockRegisterPageNoCol: table.get("stockRegPage"),
-      hiddenItemId: table.get("itemId"),
-    
-      allowFiltering: true,
-      customValue: '',
-      newItem: '',
-      query: '',
       F1: null,     
   };
 },
 
 methods: {
 
-  change: function(event, cell, column) {
-      console.log("cell", cell);
-      this.data = column.map(item => {
-          console.log("id", item.value);
-          return item.id === cell ? { ...item, F1: event.target.value } : item
+  change: function(event, slotId, column) {
+      console.log("Slot ID", slotId);
+      column.forEach(item => {
+          if (item.ID === slotId) {
+              item.F1 = event.target.value;
+          }
       });
+      console.log("column changed", column);
   },
 
   getCbx(elementId) {
@@ -712,13 +347,13 @@ methods: {
   getRowValues() {
     let row = new Map();
 
-    for (var id of comboboxKeys) {
-        row.set(id, this.getCbx(id).element.value);
-    }
-
-    for (var elemId of elementKeys) {
-        if (elemId !== "itemId") { //hidden value has no element
-            row.set(elemId, this.getElem(elemId).value);
+    for (var field of tableFields) {
+        if (field.type === 'combobox') {
+            row.set(field.id, this.getCbx(field.id).element.value);
+        } else {
+            if (field.id !== "itemId") { //hidden value has no element
+                row.set(field.id, this.getElem(field.id).value);
+            }
         }
     }
 
@@ -727,9 +362,9 @@ methods: {
   },
 
   validateInput(row) {
-      for (var key of columns) {
-          if (isBlank(row.get(key))) {
-              alert('No blank field allowed ' + key);
+      for (var field of tableFields) {
+          if (isBlank(row.get(field.id))) {
+              alert('No blank field allowed ' + field.id);
               return false;
           }
       }
@@ -750,7 +385,14 @@ methods: {
     let newItem = new Item(id, row);
     newItem.pushToTable();
 
-    console.log({"Items in table": table})
+    console.log({"Items in table": tableFields[0].column})
+  },
+
+  clearColumns() {
+      for (var field of tableFields) {
+          field.column = [];
+      }
+      sendItems = [];
   },
 
   getInvoiceAndFill() {
@@ -764,85 +406,103 @@ methods: {
   
   fillInvoice(invoice) {   
 
-    if (!isBlank(invoice)) {
-
-      this.getCbx("financialyear").value = invoice.financialYear.name;
-      this.getCbx("inputvendor").value = invoice.vendor.name;
-      this.getCbx("inputAssetType").value = invoice.assetType.name;
-      this.getCbx("inputFund").value = invoice.fund;
-      this.getElem("inputTotalAmount").value = invoice.totalAmount;
-      this.getElem("inputDateOfInvoice").value = invoice.date;
-      this.getElem("inputDateOfEntry").value = invoice.entryDate;
-
-      for (var invItem of invoice.items) {
-          let values = [
-            invItem.item.mainCategory.name,
-            invItem.item.subCategory.name,
-            invItem.item.name,
-            invItem.item.name,
-            invItem.item.finalCode,           
-            invItem.itemQuantity,
-            invItem.item.stock,
-            invItem.itemQuantity, //totalItemQuantity
-            "",// previousAvailableSerialNoColumn.push({F1 : ''});
-            invItem.item.lastSrlNoAssigned,
-            invItem.item.lastSrlNoAssigned + 1,
-            "", //itemMake
-            invItem.item.lastSrlNoAssigned + 1, //itemSerialNo
-            "", //basicRate
-            "", //discount
-            18, //tax
-            "", //amount
-            "" //stockRegisterPage
-          ];
-
-          let args = new Map();
-          for (var key in columns) {
-              args.set(columns[key], values[key]);
-          }
-
-          let item = new Item(invItem.id, args);
-          item.pushToTable();
-      }
+    if (isBlank(invoice)) {
+        return;
     }
+    this.clearColumns();
+
+    this.getCbx("financialyear").value = invoice.financialYear.name;
+    this.getCbx("inputvendor").value = invoice.vendor.name;
+    this.getCbx("inputAssetType").value = invoice.assetType.name;
+    this.getCbx("inputFund").value = invoice.fund;
+    this.getElem("inputTotalAmount").value = invoice.totalAmount;
+    this.getElem("inputDateOfInvoice").value = invoice.date;
+    this.getElem("inputDateOfEntry").value = invoice.entryDate;
+
+    for (var invItem of invoice.items) {
+        let values = [
+          invItem.item.mainCategory.name,
+          invItem.item.subCategory.name,
+          invItem.item.name,
+          invItem.item.name,
+          invItem.item.finalCode,           
+          invItem.itemQuantity,
+          invItem.item.stock,
+          invItem.itemQuantity, //totalItemQuantity
+          "",// previousAvailableSerialNoColumn.push({F1 : ''});
+          invItem.item.lastSrlNoAssigned,
+          invItem.item.lastSrlNoAssigned + 1,
+          "", //itemMake
+          invItem.item.lastSrlNoAssigned + 1, //itemSerialNo
+          "", //basicRate
+          "", //discount
+          18, //tax
+          "", //amount
+          "" //stockRegisterPage
+        ];
+
+        let args = new Map();
+        var index = 0;
+        for (var field of tableFields) {
+            args.set(field.id, values[index]);
+            index++;
+        }
+
+        let item = new Item(invItem.id, args);
+        item.pushToTable();
+    }
+    
   },
 
-  validateNumber(column) {
-    for (var val of column){
-      if (isNaN(val.F1)
-          || isBlank(val.F1)) {
-          alert(val + ' expects number');
-          return false;
-      }
+  validateNumber() {
+    for (var field of tableFields) {
+      if (field.id === 'basicRate'
+          || field.id === 'discount'
+          || field.id === 'tax'
+          || field.id === 'amount') {
+            for (var slot of field.column) {
+              if (isBlank(slot.F1)) {
+                alert(field.id + ' expects number');
+                return false;
+              }
+            }
+          }
     }
     return true;
   },
 
   validateAllColumns() {
-      for (var key of columns) {
-          let column = table.get(key);
-          for (var value of column) {
-                console.log("a column value", value.F1)
-            if (isBlank(value.F1)) {
-              console.log("Blank field", key, value.F1)
-              return false;
-            }
+      for (var field of tableFields) {
+          for (var slot of field.column) {
+              if (isBlank(slot.F1)) {
+                let msg = "Blank field: ".concat(field.text);
+                alert(msg);
+                return false;
+              }
           }
       }
       return true;
   },
 
-  sendEntry() {
-    /*
-    if (!this.validateNumber(this.basicRateCol)
-        || !this.validateNumber(this.discountCol)
-        || !this.validateNumber(this.taxCol)
-        || !this.validateNumber(this.amountCol)) {
-            return;
+  udapteSendItems() {
+    for (var index in sendItems) {
+        sendItems[index].basicRate = tableMap.get("basicRate")[index];
+        sendItems[index].discount = tableMap.get("discount")[index];
+        sendItems[index].tax = tableMap.get("tax")[index];
+        sendItems[index].amount = tableMap.get("amount")[index];
+        console.log("updated item", sendItems[index]);
     }
-    */
-    let poNumber = this.getElem('inputPO').value;   
-    let purchaseFor = this.getCbx("purchasefor").value;
+    return sendItems;
+  },
+
+  sendEntry() {
+    
+    if (!this.validateNumber()) {
+        return;
+    }
+    
+    let poNumber = this.getElem('fieldInputPO').value;   
+    let purchaseFor = this.getCbx("fieldPurchasefor").value;
         
     if (isBlank(purchaseFor)) {
       alert("Puchase for is missing!");
@@ -855,7 +515,6 @@ methods: {
     }
 
     if (!this.validateAllColumns()) {
-        alert("A column value is empty!");
         return;
     }
 
@@ -875,7 +534,7 @@ methods: {
                 "purchaseFor": {
                   "id": purchaseFor
                 },
-                "items": sendItems
+                "items": this.udapteSendItems()
             });
           });
 
@@ -895,7 +554,7 @@ methods: {
       fetch(url, options)
           .then(res => res.json())
           .then(res => console.log(res));
-      console.log({"Items sent": entry});
+      console.log({"Entry sent": entry});
       alert("Sent successfully");
   },
 },
@@ -960,9 +619,9 @@ methods: {
     display: flex;
     align-items: flex-end;
 }
-#fieldInputSN°,
+#fieldInputSN,
 #fieldInputPO,
-#fieldInputTA,
+#inputTotalAmount,
 #fieldPurchasefor {  
   display: inline-block;
   width: 200px;
@@ -974,24 +633,30 @@ methods: {
 #fieldPurchasefor{
     margin-left: 20px; 
 }
-#fieldInputTA{
+#inputTotalAmount{
   margin-top: 20px; 
 }
 #fieldset2{
   width: 100%;
   display: grid;
-  grid-template-columns:  70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px;
+  grid-template-columns: 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px 70px;
   margin-top: 20px;  
 }
 #fieldset2 label{
   height: 70px;
 }
-#fieldset2 >>> .e-multi-select-wrapper{
+#fieldset2 >>> .input-field{
+  height: 70px;
   width: 70px;
 }
-#fieldset2  >>> .paddedinput {
+#fieldset2 >>> .combobox-field{
+  width: 70px;
+}
+#fieldset2 >>> .paddedinput {
   padding: 5px;
   margin-top: -2px; 
+  height: 70px;
+  width: 70px;
 }
 
 input:focus ,
